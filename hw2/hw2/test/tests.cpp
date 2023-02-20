@@ -44,3 +44,9 @@ TEST(MyTest, TestSomething)
 {
     EXPECT_EQ(true, false);
 }
+
+TEST(FCFS, TrySuccess)
+{
+   dyn_array_t t = malloc(sizeof(dyn_array_t));
+    
+}
