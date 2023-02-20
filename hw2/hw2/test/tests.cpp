@@ -42,5 +42,5 @@ int main(int argc, char **argv)
 
 TEST(MyTest, TestSomething)
 {
-    Assert_EQ(1, 1);
+    EXPECT_EQ(true, false);
 }
