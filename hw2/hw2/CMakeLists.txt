@@ -30,9 +30,11 @@ add_executable(hw2_test test/tests.cpp)
 
 target_compile_definitions(hw2_test PRIVATE)
 
-# Link ${PROJECT_NAME}_test with dyn_array and gtest and pthread libraries
-target_link_libraries(hw2_test gtest pthread dyn_array)
+add_library(process src/process_scheduling.c)
 
-enable_testing()
-add_test(NAME hw2_test
-    COMMAND hw2_test)
+# Link ${PROJECT_NAME}_test with dyn_array and gtest and pthread libraries
+target_link_libraries(hw2_test gtest pthread dyn_array process)
+
+# enable_testing()
+# add_test(NAME hw2_test
+#     COMMAND hw2_test)

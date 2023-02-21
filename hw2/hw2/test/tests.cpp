@@ -40,13 +40,23 @@ int main(int argc, char **argv)
     return RUN_ALL_TESTS();
 }
 
-TEST(MyTest, TestSomething)
+TEST(first_come_first_serve, TestSomething)
 {
-    EXPECT_EQ(true, false);
+
+    dyn_array_t *t = dyn_array_create(5, 5, NULL);
+    bool result = false;
+    result = first_come_first_serve(t, NULL);
+
+    EXPECT_EQ(false, result);
 }
 
-TEST(FCFS, TrySuccess)
+/*
+
+TEST(FCFS, NULL_EVERYTHING)
 {
-   dyn_array_t t = malloc(sizeof(dyn_array_t));
-    
+   bool result = first_come_first_serve(NULL, NULL);
+
+   ASSERT_EQ(result, false);
 }
+
+*/
