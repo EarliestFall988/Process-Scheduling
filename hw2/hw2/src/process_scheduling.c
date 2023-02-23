@@ -59,6 +59,7 @@ bool first_come_first_serve(dyn_array_t *ready_queue, ScheduleResult_t *result)
     return true;
 }
 
+//shortest job first
 bool shortest_job_first(dyn_array_t *ready_queue, ScheduleResult_t *result) 
 {
     //Amy to work on
