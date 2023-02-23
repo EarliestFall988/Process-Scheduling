@@ -18,8 +18,7 @@ int main(int argc, char **argv)
         printf("%s <pcb file> <schedule algorithm> [quantum]\n", argv[0]);
         return EXIT_FAILURE;
     }
-
-    abort();  // replace me with implementation.
+    load_process_control_blocks("pcd.bin");
 
     return EXIT_SUCCESS;
 }
