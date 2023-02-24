@@ -3,8 +3,8 @@
 #include <string.h>
 #include <unistd.h>
 
-#include "dyn_array.h"
-#include "processing_scheduling.h"
+#include "../include/dyn_array.h"
+#include "../include/processing_scheduling.h"
 
 
 // You might find this handy.  I put it around unused parameters, but you should
@@ -123,11 +123,11 @@ bool round_robin(dyn_array_t *ready_queue, ScheduleResult_t *result, size_t quan
 dyn_array_t *load_process_control_blocks(const char *input_file) 
 {
     if(input_file == NULL){return NULL;}
-
     FILE *fp;
     fp = fopen(input_file, "r");
     if(fp == NULL){return NULL;}
     uint32_t num_PCB[1];
+    printf("%d \n",num_PCB[1]);
     if(fread(num_PCB, sizeof(uint32_t),1,fp) != 1){return NULL;}
     uint32_t buffer[num_PCB[1] * 3];
     if(fseek(fp,sizeof(uint32_t), SEEK_SET) != 0){return NULL;};
