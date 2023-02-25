@@ -69,126 +69,45 @@ int cmpfuncShortest(const void *a, const void *b)
     return 1;
 }
 
-// shortest job first
-// bool shortest_job_first(dyn_array_t *ready_queue, ScheduleResult_t *result)
-// {
-//     if (ready_queue == NULL || result == NULL)
-//     {
-//         return false;
-//     } // Check for invalid param
-//     if (!dyn_array_sort(ready_queue, cmpfuncShortest))
-//     {
-//         return false;
-//     }; // Sort array by arrival time
+ //shortest job first
+ bool shortest_job_first(dyn_array_t *ready_queue, ScheduleResult_t *result)
+ {
+     if (ready_queue == NULL || result == NULL)
+     {
+         return false;
+     } // Check for invalid param
+     if (!dyn_array_sort(ready_queue, cmpfuncShortest))
+     {
+         return false;
+     }; // Sort array by arrival time
 
-//     float waittime = 0;
-//     float runtime = 0;
-//     int n = dyn_array_size(ready_queue);
-//     for (int i = 0; i < n; i++)
-//     {
-//         ProcessControlBlock_t *current = (ProcessControlBlock_t *)dyn_array_at(ready_queue, 0);
-//         while (current->remaining_burst_time > 0)
-//         {
-//             virtual_cpu(current);
-//         }
-//         int x = n - i;
-//         runtime += ((ProcessControlBlock_t *)dyn_array_at(ready_queue, i))->remaining_burst_time;
-//         if (i > 0)
-//         {
-//             waittime += ((ProcessControlBlock_t *)dyn_array_at(ready_queue, i - 1))->remaining_burst_time * x;
-//         }
-//     }
+     float waittime = 0;
+     float runtime = 0;
+     int n = dyn_array_size(ready_queue);
+     for (int i = 0; i < n; i++)
+     {
+         ProcessControlBlock_t *current = (ProcessControlBlock_t *)dyn_array_at(ready_queue, 0);
+         while (current->remaining_burst_time > 0)
+         {
+             virtual_cpu(current);
+         }
+         int x = n - i;
+         runtime += ((ProcessControlBlock_t *)dyn_array_at(ready_queue, i))->remaining_burst_time;
+         if (i > 0)
+         {
+             waittime += ((ProcessControlBlock_t *)dyn_array_at(ready_queue, i - 1))->remaining_burst_time * x;
+         }
+     }
 
-//     dyn_array_destroy(ready_queue);
+     dyn_array_destroy(ready_queue);
 
-//     result->average_waiting_time = waittime / n;
-//     result->average_turnaround_time = runtime / n;
-//     result->total_run_time = runtime;
-//     return true;
-// }
-
-bool shortest_job_first(dyn_array_t *ready_queue, ScheduleResult_t *result)
-{
-    if (ready_queue == NULL || result == NULL)
-    {
-        return false;
-    } // Check for invalid param
-    if (!dyn_array_sort(ready_queue, cmpfuncShortest))
-    {
-        return false;
-    }; // Sort array by arrival time
-
-    float waittime = 0;
-    float runtime = 0;
-
-    // create dynamic array
-    dyn_array_t *run_que = dyn_array_create(0, sizeof(ProcessControlBlock_t), NULL);
-
-    // completed array
-    dyn_array_t *completed = dyn_array_create(0, sizeof(ProcessControlBlock_t), NULL);
-
-    int n = dyn_array_size(ready_queue);
-    uint32_t longestArraySize = 0;
-    for (int i = 0; i < n; i++)
-    {
-        ProcessControlBlock_t *current = (ProcessControlBlock_t *)dyn_array_at(ready_queue, i);
-        if (current->arrival > longestArraySize)
-        {
-            longestArraySize = current->arrival;
-        }
-
-        current->priority = 0; // double checking process priority is 0
-    }
-
-    uint32_t k = 0;
-
-    while (k < longestArraySize || dyn_array_size(run_que) > 0) // while loop, increment with k and check if run_que is empty
-    {
-        ProcessControlBlock_t *current = (ProcessControlBlock_t *)dyn_array_at(ready_queue, k);
-        if (current->arrival == k)
-        {
-            dyn_array_push_back(run_que, dyn_array_at(ready_queue, k));
-            dyn_array_sort(run_que, cmpfuncShortest);
-        }
-
-        // vcp here in order to compute the jobs that are already in the run_que
-
-        if (dyn_array_size(run_que) > 0)
-        {
-            virtual_cpu((ProcessControlBlock_t *)dyn_array_at(run_que, 0));
-            runtime += 1;
-            waittime += runtime; // TODO: Wait time does not seem correct theoretically
-
-            if (dyn_array_size(run_que) > 1)
-            {
-                for (size_t i = 1; i < dyn_array_size(run_que); i++)
-                {
-                    ((ProcessControlBlock_t *)dyn_array_at(run_que, i))->priority += 1;
-                }
-            }
-
-            if (((ProcessControlBlock_t *)dyn_array_at(run_que, 0))->remaining_burst_time == 0) // if the job is done, remove it from the run_que
-            {
-                dyn_array_push_back(completed, dyn_array_at(run_que, 0));
-                dyn_array_erase(run_que, 0); // good bye priority
-            }
-        }
-
-        if (k < longestArraySize)
-            k++;
-    }
-
-    result->average_waiting_time = waittime / n;
-    result->average_turnaround_time = runtime / n;
-    result->total_run_time = runtime;
-
-    // destroy dynamic arrays
-    dyn_array_destroy(ready_queue);
-    dyn_array_destroy(run_que);
-    dyn_array_destroy(completed);
-
-    return true;
+     result->average_waiting_time = waittime / n;
+     result->average_turnaround_time = runtime / n;
+     result->total_run_time = runtime;
+     return true;
 }
+
+
 
 bool priority(dyn_array_t *ready_queue, ScheduleResult_t *result)
 {
@@ -308,33 +227,79 @@ bool shortest_remaining_time_first(dyn_array_t *ready_queue, ScheduleResult_t *r
     {
         return false;
     } // Check for invalid param
-    if (!dyn_array_sort(ready_queue, cmpfuncRemainingTime))
+    if (!dyn_array_sort(ready_queue, cmpfuncShortest))
     {
         return false;
     }; // Sort array by arrival time
 
     float waittime = 0;
     float runtime = 0;
+
+    // create dynamic array
+    dyn_array_t *run_que = dyn_array_create(0, sizeof(ProcessControlBlock_t), NULL);
+
+    // completed array
+    dyn_array_t *completed = dyn_array_create(0, sizeof(ProcessControlBlock_t), NULL);
+
     int n = dyn_array_size(ready_queue);
+    uint32_t longestArraySize = 0;
     for (int i = 0; i < n; i++)
     {
-        ProcessControlBlock_t *current = (ProcessControlBlock_t *)dyn_array_at(ready_queue, 0);
-        while (current->remaining_burst_time > 0)
+        ProcessControlBlock_t *current = (ProcessControlBlock_t *)dyn_array_at(ready_queue, i);
+        if (current->arrival > longestArraySize)
         {
-            virtual_cpu(current);
+            longestArraySize = current->arrival;
         }
-        int x = n - i;
-        runtime += ((ProcessControlBlock_t *)dyn_array_at(ready_queue, i))->remaining_burst_time;
-        if (i > 0)
-        {
-            waittime += ((ProcessControlBlock_t *)dyn_array_at(ready_queue, i - 1))->remaining_burst_time * x;
-        }
+
+        current->priority = 0; // double checking process priority is 0
     }
 
-    dyn_array_destroy(ready_queue);
+    uint32_t k = 0;
+
+    while (k < longestArraySize || dyn_array_size(run_que) > 0) // while loop, increment with k and check if run_que is empty
+    {
+        ProcessControlBlock_t *current = (ProcessControlBlock_t *)dyn_array_at(ready_queue, k);
+        if (current->arrival == k)
+        {
+            dyn_array_push_back(run_que, dyn_array_at(ready_queue, k));
+            dyn_array_sort(run_que, cmpfuncShortest);
+        }
+
+        // vcp here in order to compute the jobs that are already in the run_que
+
+        if (dyn_array_size(run_que) > 0)
+        {
+            virtual_cpu((ProcessControlBlock_t *)dyn_array_at(run_que, 0));
+            runtime += 1;
+            waittime += runtime; // TODO: Wait time does not seem correct theoretically
+
+            if (dyn_array_size(run_que) > 1)
+            {
+                for (size_t i = 1; i < dyn_array_size(run_que); i++)
+                {
+                    ((ProcessControlBlock_t *)dyn_array_at(run_que, i))->priority += 1;
+                }
+            }
+
+            if (((ProcessControlBlock_t *)dyn_array_at(run_que, 0))->remaining_burst_time == 0) // if the job is done, remove it from the run_que
+            {
+                dyn_array_push_back(completed, dyn_array_at(run_que, 0));
+                dyn_array_erase(run_que, 0); // good bye priority
+            }
+        }
+
+        if (k < longestArraySize)
+            k++;
+    }
 
     result->average_waiting_time = waittime / n;
     result->average_turnaround_time = runtime / n;
     result->total_run_time = runtime;
+
+    // destroy dynamic arrays
+    dyn_array_destroy(ready_queue);
+    dyn_array_destroy(run_que);
+    dyn_array_destroy(completed);
+
     return true;
 }
