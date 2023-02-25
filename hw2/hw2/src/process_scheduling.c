@@ -59,17 +59,60 @@ bool first_come_first_serve(dyn_array_t *ready_queue, ScheduleResult_t *result)
     return true;
 }
 
+int cmpfuncShortest(void *a, void *b)
+{
+    if(((ProcessControlBlock_t*)a)->remaining_burst_time <= ((ProcessControlBlock_t*)b)->remaining_burst_time)
+	{
+		return 0;
+	}
+	return 1;
+}
+
+//shortest job first
 bool shortest_job_first(dyn_array_t *ready_queue, ScheduleResult_t *result) 
 {
-    //Amy to work on
-    UNUSED(ready_queue);
-    UNUSED(result);
-    return false;   
+    if(ready_queue == NULL || result == NULL){return false;}    //Check for invalid param 
+    if(!dyn_array_sort(ready_queue, cmpfuncShortest)){return false;};//Sort array by shortest PCB
+
+    //for results structure
+    float completion_time[dyn_array_size(ready_queue)];
+    float waiting_time[dyn_array_size(ready_queue)];
+
+    //Loop through the ready_queue until all processing is complete
+    for(int i = 0;i < (int)dyn_array_size(ready_queue);i++)
+    {
+        ProcessControlBlock_t * current = (ProcessControlBlock_t *)dyn_array_at(ready_queue, 0);
+        completion_time[i] = current->remaining_burst_time;
+        waiting_time[i] = waiting_time[i] + completion_time[i];
+        while(current->remaining_burst_time != 0)
+        {
+            virtual_cpu(current);
+        }
+        if(!dyn_array_pop_front(ready_queue)){return false;};
+    }
+
+    //for results 
+    waiting_time[dyn_array_size(ready_queue)-1] = 0;//No PCB after last block executes => no wait time
+    dyn_array_destroy(ready_queue);
+    //Calculate values for result
+    float average_waiting_time = 0;
+    unsigned long total_run_time = 0;
+
+    for(int i = 0;i < (int)sizeof(waiting_time);i++)
+    {
+        average_waiting_time += waiting_time[i];
+        total_run_time += completion_time[i];
+    }
+
+    //Put results in result structure
+    result->average_waiting_time = average_waiting_time/(sizeof(waiting_time));
+    result->average_turnaround_time = (float)total_run_time/(sizeof(waiting_time));
+    result->total_run_time = total_run_time;
+    return true;
 }
 
 bool priority(dyn_array_t *ready_queue, ScheduleResult_t *result) 
 {
-    //Amy to work on
     UNUSED(ready_queue);
     UNUSED(result);
     return false;   
