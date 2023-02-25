@@ -59,7 +59,7 @@ bool first_come_first_serve(dyn_array_t *ready_queue, ScheduleResult_t *result)
     return true;
 }
 
-int cmpfuncShortest(void *a, void *b)
+int cmpfuncShortest(const void *a, const void *b)
 {
     if(((ProcessControlBlock_t*)a)->remaining_burst_time <= ((ProcessControlBlock_t*)b)->remaining_burst_time)
 	{
