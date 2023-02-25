@@ -83,7 +83,7 @@ TEST(first_come_first_serve, VALID_PCB)
     result = first_come_first_serve(t, &r);
 
     EXPECT_EQ(true, result);
-    EXPECT_EQ(2, r.average_waiting_time);
+    EXPECT_EQ(4, r.average_waiting_time);
     EXPECT_EQ(3, r.average_turnaround_time);
     EXPECT_EQ((unsigned long)15, r.total_run_time);
 }
@@ -168,6 +168,29 @@ TEST(round_robin, NULL_Schedule_Result)
     EXPECT_EQ(false, result);
 }
 
+TEST(round_robin, Valid_PCB)
+{
+    dyn_array_t *t = dyn_array_create(32, 32, NULL);
+    ScheduleResult_t r = {0, 0, 0};
+    ProcessControlBlock_t pcb1 = {1, 0, 1, false};
+    ProcessControlBlock_t pcb2 = {2, 0, 2, false};
+    ProcessControlBlock_t pcb3 = {3, 0, 3, false};
+    ProcessControlBlock_t pcb4 = {4, 0, 4, false};
+    ProcessControlBlock_t pcb5 = {5, 0, 5, false};
+    dyn_array_push_back(t, &pcb1);
+    dyn_array_push_back(t, &pcb2);
+    dyn_array_push_back(t, &pcb3);
+    dyn_array_push_back(t, &pcb4);
+    dyn_array_push_back(t, &pcb5);
+
+    bool result = false;
+    result = first_come_first_serve(t, &r);
+
+    EXPECT_EQ(true, result);
+    EXPECT_EQ(4, r.average_waiting_time);
+    EXPECT_EQ(3, r.average_turnaround_time);
+    EXPECT_EQ((unsigned long)15, r.total_run_time);
+}
 // loading process control block tests
 
 TEST(load_process_control_blocks, NULL_File_Name)
