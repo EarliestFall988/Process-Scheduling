@@ -35,6 +35,59 @@ bool first_come_first_serve(dyn_array_t *ready_queue, ScheduleResult_t *result)
     }; // Sort array by arrival time
 
     float waittime = 0;
+    unsigned long runtime = 0;
+    int n = dyn_array_size(ready_queue);
+    for (int i = 0; i < n; i++)
+    {
+
+        int x = n - i;
+        runtime += ((ProcessControlBlock_t *)dyn_array_at(ready_queue, i))->remaining_burst_time;
+        if (i > 0)
+        {
+            waittime += ((ProcessControlBlock_t *)dyn_array_at(ready_queue, i - 1))->remaining_burst_time * x;
+        }
+    }
+
+    for (int i = 0; i < n; i++)
+    {
+        ProcessControlBlock_t *current = (ProcessControlBlock_t *)dyn_array_at(ready_queue, i);
+
+        while (current->remaining_burst_time > 0)
+        {
+            virtual_cpu(current);
+        }
+    }
+
+    dyn_array_destroy(ready_queue);
+
+    result->average_waiting_time = waittime / n;
+    result->average_turnaround_time = runtime / n;
+    result->total_run_time = runtime;
+    return true;
+}
+
+int cmpfuncShortest(const void *a, const void *b)
+{
+    if (((ProcessControlBlock_t *)a)->remaining_burst_time <= ((ProcessControlBlock_t *)b)->remaining_burst_time)
+    {
+        return 0;
+    }
+    return 1;
+}
+
+// shortest job first
+bool shortest_job_first(dyn_array_t *ready_queue, ScheduleResult_t *result)
+{
+    if (ready_queue == NULL || result == NULL)
+    {
+        return false;
+    } // Check for invalid param
+    if (!dyn_array_sort(ready_queue, cmpfuncShortest))
+    {
+        return false;
+    }; // Sort array by arrival time
+
+    float waittime = 0;
     float runtime = 0;
     int n = dyn_array_size(ready_queue);
     for (int i = 0; i < n; i++)
@@ -59,55 +112,6 @@ bool first_come_first_serve(dyn_array_t *ready_queue, ScheduleResult_t *result)
     result->total_run_time = runtime;
     return true;
 }
-
-int cmpfuncShortest(const void *a, const void *b)
-{
-    if (((ProcessControlBlock_t *)a)->remaining_burst_time <= ((ProcessControlBlock_t *)b)->remaining_burst_time)
-    {
-        return 0;
-    }
-    return 1;
-}
-
- //shortest job first
- bool shortest_job_first(dyn_array_t *ready_queue, ScheduleResult_t *result)
- {
-     if (ready_queue == NULL || result == NULL)
-     {
-         return false;
-     } // Check for invalid param
-     if (!dyn_array_sort(ready_queue, cmpfuncShortest))
-     {
-         return false;
-     }; // Sort array by arrival time
-
-     float waittime = 0;
-     float runtime = 0;
-     int n = dyn_array_size(ready_queue);
-     for (int i = 0; i < n; i++)
-     {
-         ProcessControlBlock_t *current = (ProcessControlBlock_t *)dyn_array_at(ready_queue, 0);
-         while (current->remaining_burst_time > 0)
-         {
-             virtual_cpu(current);
-         }
-         int x = n - i;
-         runtime += ((ProcessControlBlock_t *)dyn_array_at(ready_queue, i))->remaining_burst_time;
-         if (i > 0)
-         {
-             waittime += ((ProcessControlBlock_t *)dyn_array_at(ready_queue, i - 1))->remaining_burst_time * x;
-         }
-     }
-
-     dyn_array_destroy(ready_queue);
-
-     result->average_waiting_time = waittime / n;
-     result->average_turnaround_time = runtime / n;
-     result->total_run_time = runtime;
-     return true;
-}
-
-
 
 bool priority(dyn_array_t *ready_queue, ScheduleResult_t *result)
 {

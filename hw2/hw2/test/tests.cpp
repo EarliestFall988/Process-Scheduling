@@ -108,25 +108,7 @@ TEST(shortest_job_first, NULL_Schedule_Result)
     EXPECT_EQ(false, result);
 }
 
-// priority tests (not apart of the milestones)
 
-// TEST(priority, NULL_Ready_Queue)
-// {
-//     ScheduleResult_t r = {0,0,0};
-//     dyn_array_t *t = dyn_array_create(32, 32, NULL);
-//     bool result = false;
-//     result = priority(t, &r);
-//     EXPECT_EQ(false, result);
-// }
-
-// TEST(priority, NULL_Schedule_Result)
-// {
-//     dyn_array_t *t = dyn_array_create(5, 5, NULL);
-//     bool result = false;
-//     result = priority(t, NULL);
-
-//     EXPECT_EQ(false, result);
-// }
 
 // shortest remaining time first tests
 
