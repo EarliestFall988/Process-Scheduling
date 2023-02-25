@@ -147,23 +147,23 @@ TEST(round_robin, NULL_Schedule_Result)
 
 TEST(load_process_control_blocks, NULL_File_Name)
 {
-    dyn_array_t *t = dyn_array_create(32, 32, NULL);
+    dyn_array_t *t = dyn_array_create(248, 248, NULL);
     t = load_process_control_blocks(NULL);
     EXPECT_TRUE(t == NULL);
 }
 
 TEST(load_process_control_blocks, NULL_File)
 {
-    dyn_array_t *t = dyn_array_create(32, 32, NULL);
+    dyn_array_t *t = dyn_array_create(248, 248, NULL);
     t = load_process_control_blocks("test.txt");
     EXPECT_TRUE(t == NULL);
 }
 
 TEST(load_process_control_blocks, Valid_File)
 {
-    dyn_array_t *correct = dyn_array_create(32, 32, NULL); // no idea what correct is yet.
+    dyn_array_t *correct = dyn_array_create(248, 248, NULL); // no idea what correct is yet.
 
-    dyn_array_t *t = dyn_array_create(32, 32, NULL);
+    dyn_array_t *t = dyn_array_create(248, 248, NULL);
     t = load_process_control_blocks("../pcb.bin");
     EXPECT_TRUE(t == correct);
 }
