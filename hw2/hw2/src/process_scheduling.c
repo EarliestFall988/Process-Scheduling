@@ -225,6 +225,7 @@ int cmpfuncRemainingTime(const void *a, const void *b)
 {
     return (((ProcessControlBlock_t *)a)->remaining_burst_time - ((ProcessControlBlock_t *)b)->remaining_burst_time);
 }
+
 bool shortest_remaining_time_first(dyn_array_t *ready_queue, ScheduleResult_t *result)
 {
     if (ready_queue == NULL || result == NULL)
@@ -245,9 +246,9 @@ bool shortest_remaining_time_first(dyn_array_t *ready_queue, ScheduleResult_t *r
     // completed array
     dyn_array_t *completed = dyn_array_create(0, sizeof(ProcessControlBlock_t), NULL);
 
-    int n = dyn_array_size(ready_queue);
+    size_t n = dyn_array_size(ready_queue);
     uint32_t longestArraySize = 0;
-    for (int i = 0; i < n; i++)
+    for (size_t i = 0; i < n; i++)
     {
         ProcessControlBlock_t *current = (ProcessControlBlock_t *)dyn_array_at(ready_queue, i);
         if (current->arrival > longestArraySize)
@@ -260,14 +261,21 @@ bool shortest_remaining_time_first(dyn_array_t *ready_queue, ScheduleResult_t *r
 
     uint32_t k = 0;
 
-    while (k < longestArraySize || dyn_array_size(run_que) > 0) // while loop, increment with k and check if run_que is empty
+    while (k <= longestArraySize || dyn_array_size(run_que) > 0) // while loop, increment with k and check if run_que is empty
     {
-        ProcessControlBlock_t *current = (ProcessControlBlock_t *)dyn_array_at(ready_queue, k);
-        if (current->arrival == k)
+        if (k <= longestArraySize)
         {
-            dyn_array_push_back(run_que, dyn_array_at(ready_queue, k));
-            dyn_array_sort(run_que, cmpfuncShortest);
+            for (size_t i = 0; i < dyn_array_size(ready_queue); i++)
+            {
+                ProcessControlBlock_t *current = (ProcessControlBlock_t *)dyn_array_at(ready_queue, i);
+                if (current->arrival == k)
+                {
+                    dyn_array_push_back(run_que, dyn_array_at(ready_queue, k));
+                    dyn_array_sort(run_que, cmpfuncShortest);
+                }
+            }
         }
+        // runtime += 1;
 
         // vcp here in order to compute the jobs that are already in the run_que
 
@@ -275,13 +283,17 @@ bool shortest_remaining_time_first(dyn_array_t *ready_queue, ScheduleResult_t *r
         {
             virtual_cpu((ProcessControlBlock_t *)dyn_array_at(run_que, 0));
             runtime += 1;
-            waittime += runtime; // TODO: Wait time does not seem correct theoretically
+            // waittime += runtime; // TODO: Wait time does not seem correct theoretically
 
-            if (dyn_array_size(run_que) > 1)
+            printf("run_time - %f \n\n\n", runtime);
+
+            if (dyn_array_size(run_que) >= 1)
             {
                 for (size_t i = 1; i < dyn_array_size(run_que); i++)
                 {
-                    ((ProcessControlBlock_t *)dyn_array_at(run_que, i))->priority += 1;
+                    ProcessControlBlock_t *current = ((ProcessControlBlock_t *)dyn_array_at(run_que, i));
+                    current->priority += 1;
+                    printf("\tincrement %f: \n", (float)current->priority);
                 }
             }
 
@@ -292,8 +304,15 @@ bool shortest_remaining_time_first(dyn_array_t *ready_queue, ScheduleResult_t *r
             }
         }
 
-        if (k < longestArraySize)
+        if (k <= longestArraySize)
             k++;
+    }
+    for (size_t i = 0; i < dyn_array_size(completed); i++)
+    {
+        ProcessControlBlock_t *current = (ProcessControlBlock_t *)dyn_array_at(completed, i);
+        waittime += (float)current->priority;
+
+        printf("Process %f: \n", (float)current->priority);
     }
 
     result->average_waiting_time = waittime / n;

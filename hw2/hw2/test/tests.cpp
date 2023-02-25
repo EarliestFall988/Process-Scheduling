@@ -147,8 +147,8 @@ TEST(shortest_remaining_time_first, Valid_PCB)
     result = shortest_remaining_time_first(t, &r);
 
     EXPECT_EQ(true, result);
-    EXPECT_EQ(6.5, r.average_waiting_time);
-    EXPECT_EQ(26 / 4, r.average_turnaround_time);
+    EXPECT_EQ((float)6.5, r.average_waiting_time);
+    EXPECT_EQ((float)6.5, r.average_turnaround_time);
     EXPECT_EQ((unsigned long)26, r.total_run_time);
 }
 
