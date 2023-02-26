@@ -22,14 +22,10 @@ int main(int argc, char **argv)
     }
     ScheduleResult_t * results = (ScheduleResult_t *)malloc(sizeof(ScheduleResult_t));
     dyn_array_t * PCB_Array = load_process_control_blocks("argv[0]");
-    FILE *fp;
-    fp = fopen("readme.mb", "w");
+
     if(strcmp(argv[1],FCFS))
     {
         first_come_first_serve(PCB_Array,results);
-        /*fprintf(fp,"%f ", results->average_waiting_time);
-        fprintf(fp,"%f ", results->average_turnaround_time);
-        fprintf(fp,"%lu ", results->total_run_time);*/
         printf("Average Waiting Time: %f \n", results->average_waiting_time);
         printf("Average Turnaround Time: %f \n", results->average_turnaround_time);
         printf("Total Run Time: %lu \n", results->total_run_time);
@@ -37,9 +33,6 @@ int main(int argc, char **argv)
     if(strcmp(argv[1],P))
     {
         priority(PCB_Array,results);
-        /*fprintf(fp,"%f ", results->average_waiting_time);
-        fprintf(fp,"%f ", results->average_turnaround_time);
-        fprintf(fp,"%lu ", results->total_run_time);*/
         printf("Average Waiting Time: %f \n", results->average_waiting_time);
         printf("Average Turnaround Time: %f \n", results->average_turnaround_time);
         printf("Total Run Time: %lu \n", results->total_run_time);
@@ -47,9 +40,6 @@ int main(int argc, char **argv)
     if(strcmp(argv[1],RR))
     {
         round_robin(PCB_Array,results,(size_t)atoi(argv[2]));
-        /*fprintf(fp,"%f ", results->average_waiting_time);
-        fprintf(fp,"%f ", results->average_turnaround_time);
-        fprintf(fp,"%lu ", results->total_run_time);*/
         printf("Average Waiting Time: %f \n", results->average_waiting_time);
         printf("Average Turnaround Time: %f \n", results->average_turnaround_time);
         printf("Total Run Time: %lu \n", results->total_run_time);
@@ -57,14 +47,10 @@ int main(int argc, char **argv)
     if(strcmp(argv[1],SJF))
     {
         shortest_job_first(PCB_Array,results);
-        /*fprintf(fp,"%f ", results->average_waiting_time);
-        fprintf(fp,"%f ", results->average_turnaround_time);
-        fprintf(fp,"%lu ", results->total_run_time);*/
         printf("Average Waiting Time: %f \n", results->average_waiting_time);
         printf("Average Turnaround Time: %f \n", results->average_turnaround_time);
         printf("Total Run Time: %lu \n", results->total_run_time);
     }
-    fclose(fp);
     free(results);
     free(PCB_Array);
 
