@@ -190,8 +190,20 @@ bool round_robin(dyn_array_t *ready_queue, ScheduleResult_t *result, size_t quan
     } // Check for invalid param
 
     float runtime = 0;
-    float waittime = 0;
+
     float n = dyn_array_size(ready_queue);
+
+    float completionTime = 0;
+    float arrivalTime = 0;
+    float waittime = 0;
+    // float turnaroundTime = 0;
+    float totalBurstTime = 0;
+
+    for (int i = 0; i < n; i++)
+    {
+        totalBurstTime += ((ProcessControlBlock_t *)dyn_array_at(ready_queue, i))->remaining_burst_time;
+        printf("totalburstTime: %f\n", totalBurstTime);
+    }
 
     dyn_array_t *completed = dyn_array_create(0, sizeof(ProcessControlBlock_t), NULL);
 
@@ -207,22 +219,31 @@ bool round_robin(dyn_array_t *ready_queue, ScheduleResult_t *result, size_t quan
             {
                 virtual_cpu(current); // run the process
 
+                runtime++;
+                q--; // decrement the quantum
+
                 if (current->remaining_burst_time <= 0)
                 {
+
+                    completedProcess = true;
+                    completionTime += runtime;
+                    arrivalTime += current->arrival;
+
                     dyn_array_push_back(completed, dyn_array_at(ready_queue, i));
                     dyn_array_erase(ready_queue, i);
-                    completedProcess = true;
                 }
 
-                q--;       // decrement the quantum
-                runtime++; // db never reaches here??
-                waittime = waittime + dyn_array_size(ready_queue) - 1;
+                // waittime = waittime + dyn_array_size(ready_queue) - 1;
             }
         }
     }
 
     dyn_array_destroy(ready_queue);
     dyn_array_destroy(completed);
+
+    printf("%f: %f: %f", completionTime, arrivalTime, totalBurstTime);
+
+    waittime = completionTime - arrivalTime - totalBurstTime;
 
     result->average_waiting_time = waittime / n;
     result->average_turnaround_time = runtime / n;

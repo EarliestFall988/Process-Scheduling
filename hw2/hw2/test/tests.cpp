@@ -196,23 +196,31 @@ TEST(round_robin, NULL_Schedule_Result)
 
 TEST(round_robin, Valid_PCB)
 {
-    dyn_array_t *t = dyn_array_create(3, sizeof(ProcessControlBlock_t), NULL);
+    dyn_array_t *t = dyn_array_create(4, sizeof(ProcessControlBlock_t), NULL);
     ScheduleResult_t r = {0, 0, 0};
-    ProcessControlBlock_t pcb1 = {24, 0, 1, false};
-    ProcessControlBlock_t pcb2 = {3, 0, 2, false};
-    ProcessControlBlock_t pcb3 = {3, 0, 3, false};
+    ProcessControlBlock_t pcb0 = {8, 0, 0, false};
+    ProcessControlBlock_t pcb1 = {5, 0, 1, false};
+    ProcessControlBlock_t pcb2 = {10, 0, 2, false};
+    ProcessControlBlock_t pcb3 = {11, 0, 3, false};
+    dyn_array_push_back(t, &pcb0);
     dyn_array_push_back(t, &pcb1);
     dyn_array_push_back(t, &pcb2);
     dyn_array_push_back(t, &pcb3);
 
     bool result = false;
-    int quantum = 4;
+    int quantum = 6;
     result = round_robin(t, &r, quantum);       // 24, 3, 3 
 
+    // EXPECT_EQ(true, result);
+    // // EXPECT_TRUE(abs((float)(17 / 3.0) - r.average_waiting_time) < .001); //where did the 17 and ten come from??
+    // EXPECT_EQ(45, r.average_waiting_time);
+    // EXPECT_TRUE(abs(10.0 - r.average_turnaround_time) < .001);
+    // EXPECT_EQ((unsigned long)30, r.total_run_time);
+
     EXPECT_EQ(true, result);
-    EXPECT_TRUE(abs((float)(17 / 3.0) - r.average_waiting_time) < .001); //where did the 17 and ten come from??
-    EXPECT_TRUE(abs(10.0 - r.average_turnaround_time) < .001);
-    EXPECT_EQ((unsigned long)30, r.total_run_time);
+    EXPECT_EQ(14.75, r.average_waiting_time);
+    EXPECT_EQ(23.25, r.average_turnaround_time);
+    EXPECT_EQ((unsigned long)34, r.total_run_time);
 }
 // loading process control block tests
 
