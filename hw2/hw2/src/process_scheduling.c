@@ -175,6 +175,58 @@ bool round_robin(dyn_array_t *ready_queue, ScheduleResult_t *result, size_t quan
     return true;
 }
 
+// round robin, rewritten for the purpose of testing and comparing with the original round robin
+bool round_robin(dyn_array_t *ready_queue, ScheduleResult_t *result, size_t quantum)
+{
+    if (ready_queue == NULL || result == NULL || quantum <= 0)
+    {
+        return false;
+    } // Check for invalid param
+    float completion_time[dyn_array_size(ready_queue)];
+    float waiting_time[dyn_array_size(ready_queue)];
+
+    float runtime = 0;
+    float waittime = 0;
+    float n = dyn_array_size(ready_queue);
+
+    dyn_array_t *completed = dyn_array_create(0, sizeof(ProcessControlBlock_t), NULL);
+
+    while (dyn_array_size(ready_queue) != 0)
+    {
+        for (size_t i = 0; i < dyn_array_size(ready_queue); i++)
+        {
+            ProcessControlBlock_t *current = (ProcessControlBlock_t *)dyn_array_at(ready_queue, i);
+
+            int q = quantum;            // set the quantum
+            bool completed = false;     // flag to check if the process is completed
+            while (q < 0 && !completed) // run the process until the quantum is 0 or the process is completed
+            {
+                virtual_cpu(current); // run the process
+
+                if (current->remaining_burst_time <= 0)
+                {
+                    dyn_array_push_back(completed, dyn_array_at(ready_queue, i));
+                    dyn_array_remove_at(ready_queue, i);
+                    completed = true;
+                }
+
+                q--; // decrement the quantum
+                runtime++;
+                waittime = waittime + dyn_array_size(ready_queue) - 1;
+            }
+        }
+    }
+
+    dyn_array_destroy(ready_queue);
+    dyn_array_destroy(completed);
+
+    result->average_waiting_time = waittime / n;
+    result->average_turnaround_time = runtime / n;
+    result->total_run_time = runtime;
+
+    return true;
+}
+
 dyn_array_t *load_process_control_blocks(const char *input_file)
 {
     if (input_file == NULL)
