@@ -132,8 +132,6 @@ TEST(shortest_job_first, VALID_PCB)
     EXPECT_EQ((unsigned long)15, r.total_run_time);
 }
 
-
-
 // shortest remaining time first tests
 
 TEST(shortest_remaining_time_first, NULL_Ready_Queue)
@@ -180,10 +178,10 @@ TEST(shortest_remaining_time_first, Valid_PCB)
 
 TEST(round_robin, NULL_Ready_Queue)
 {
-    ScheduleResult_t r = {0, 0, 0};
+    // ScheduleResult_t r = {0, 0, 0};
     dyn_array_t *t = dyn_array_create(32, 32, NULL);
     bool result = false;
-    result = round_robin(t, &r, QUANTUM);
+    result = round_robin(t, NULL, QUANTUM);
     EXPECT_EQ(false, result);
 }
 
@@ -208,11 +206,12 @@ TEST(round_robin, Valid_PCB)
     dyn_array_push_back(t, &pcb3);
 
     bool result = false;
-    result = round_robin(t, &r,4);
+    int quantum = 4;
+    result = round_robin(t, &r, quantum);       // 24, 3, 3 
 
     EXPECT_EQ(true, result);
-    EXPECT_TRUE(abs((float)(17/3.0)-r.average_waiting_time)<.001);
-    EXPECT_TRUE(abs(10.0-r.average_turnaround_time)<.001);
+    EXPECT_TRUE(abs((float)(17 / 3.0) - r.average_waiting_time) < .001); //where did the 17 and ten come from??
+    EXPECT_TRUE(abs(10.0 - r.average_turnaround_time) < .001);
     EXPECT_EQ((unsigned long)30, r.total_run_time);
 }
 // loading process control block tests
@@ -233,7 +232,7 @@ TEST(load_process_control_blocks, NULL_File)
 
 TEST(load_process_control_blocks, Valid_File)
 {
-    //dyn_array_t *correct = dyn_array_create(4, sizeof(ProcessControlBlock_t), NULL); // no idea what correct is yet.
+    // dyn_array_t *correct = dyn_array_create(4, sizeof(ProcessControlBlock_t), NULL); // no idea what correct is yet.
 
     // ProcessControlBlock_t pcb1 = {1, 0, 0, 10};
     // ProcessControlBlock_t pcb2 = {2, 0, 0, 5};
@@ -242,7 +241,7 @@ TEST(load_process_control_blocks, Valid_File)
     // dyn_array_push_back(correct, &pcb2);
 
     dyn_array_t *t = load_process_control_blocks("../pcb.bin");
-    EXPECT_EQ((size_t)4,dyn_array_size(t));
+    EXPECT_EQ((size_t)4, dyn_array_size(t));
     dyn_array_destroy(t);
 
     // for (int i = 0; i < dyn_array_size(t); i++)
