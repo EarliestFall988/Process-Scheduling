@@ -228,7 +228,7 @@ dyn_array_t *load_process_control_blocks(const char *input_file)
     {
         return NULL;
     }
-    // printf("%d \n", (int)(num_PCB[0]));
+
     // Loop through the file creating dynamic array of specified PCBs
     for (uint32_t i = 0; i < num_PCB[0] * 3; i += 3)
     {
@@ -238,9 +238,6 @@ dyn_array_t *load_process_control_blocks(const char *input_file)
         PCB->arrival = buffer[i + 2];                                                                // set the PCB's arrival time
         PCB->started = false;                                                                        // set the PCB's started flag to false
         dyn_array_push_back(PCB_array, PCB);                                                         // add the PCB to the dynamic array
-        // printf("%u ", PCB->remaining_burst_time);
-        // printf("%u ", PCB->priority);
-        // printf("%u\n", PCB->arrival);
     }
     fclose(fp);       // close the file
     return PCB_array; // return the dynamic array
