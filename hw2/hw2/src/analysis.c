@@ -20,7 +20,7 @@ int main(int argc, char **argv)
     }
 
     // ScheduleResult_t * results = (ScheduleResult_t *)malloc(sizeof(ScheduleResult_t));
-    ScheduleResult_t *results = {0};
+    ScheduleResult_t results = {0, 0, 0};
 
     printf("Loading PCBs from %s \n", argv[1]);
 
@@ -32,17 +32,17 @@ int main(int argc, char **argv)
 
     if (strcmp(argv[2], FCFS) == 0)
     {
-        first_come_first_serve(PCB_Array, results);
-        printf("Average Waiting Time: %f \n", results->average_waiting_time);
-        printf("Average Turnaround Time: %f \n", results->average_turnaround_time);
-        printf("Total Run Time: %lu \n", results->total_run_time);
+        first_come_first_serve(PCB_Array, &results);
+        printf("Average Waiting Time: %f \n", results.average_waiting_time);
+        printf("Average Turnaround Time: %f \n", results.average_turnaround_time);
+        printf("Total Run Time: %lu \n", results.total_run_time);
     }
     if (strcmp(argv[2], P) == 0)
     {
-        priority(PCB_Array, results);
-        printf("Average Waiting Time: %f \n", results->average_waiting_time);
-        printf("Average Turnaround Time: %f \n", results->average_turnaround_time);
-        printf("Total Run Time: %lu \n", results->total_run_time);
+        priority(PCB_Array, &results);
+        printf("Average Waiting Time: %f \n", results.average_waiting_time);
+        printf("Average Turnaround Time: %f \n", results.average_turnaround_time);
+        printf("Total Run Time: %lu \n", results.total_run_time);
     }
     if (strcmp(argv[2], RR) == 0)
     {
@@ -52,7 +52,7 @@ int main(int argc, char **argv)
         size_t quantum = (size_t)atoi(argv[3]);
         printf("quantum created: %lu \n", quantum);
 
-        bool x = round_robin(PCB_Array, results, quantum);
+        bool x = round_robin(PCB_Array, &results, quantum);
 
         if (!x)
         {
@@ -61,20 +61,20 @@ int main(int argc, char **argv)
         }
 
         printf("args 2: %s \n", argv[2]);
-        printf("Average Waiting Time: %f \n", results->average_waiting_time);
-        printf("Average Turnaround Time: %f \n", results->average_turnaround_time);
-        printf("Total Run Time: %lu \n", results->total_run_time);
+        printf("Average Waiting Time: %f \n", results.average_waiting_time);
+        printf("Average Turnaround Time: %f \n", results.average_turnaround_time);
+        printf("Total Run Time: %lu \n", results.total_run_time);
     }
     if (strcmp(argv[2], SJF) == 0)
     {
-        shortest_job_first(PCB_Array, results);
-        printf("Average Waiting Time: %f \n", results->average_waiting_time);
-        printf("Average Turnaround Time: %f \n", results->average_turnaround_time);
-        printf("Total Run Time: %lu \n", results->total_run_time);
+        shortest_job_first(PCB_Array, &results);
+        printf("Average Waiting Time: %f \n", results.average_waiting_time);
+        printf("Average Turnaround Time: %f \n", results.average_turnaround_time);
+        printf("Total Run Time: %lu \n", results.total_run_time);
     }
 
-    free(results);
-    dyn_array_destroy(PCB_Array);
+    // free(results);
+    // dyn_array_destroy(PCB_Array);
 
     return EXIT_SUCCESS;
 }

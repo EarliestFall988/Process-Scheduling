@@ -186,6 +186,22 @@ bool round_robin(dyn_array_t *ready_queue, ScheduleResult_t *result, size_t quan
 {
     if (ready_queue == NULL || result == NULL || quantum <= 0)
     {
+
+
+        if (ready_queue == NULL)
+        {
+            printf("ready_queue is null \n");
+        }
+
+        if (result == NULL)
+        {
+            printf("result is null \n");
+        }
+        if (quantum <= 0)
+        {
+            printf("quantum is less than or equal to 0 \n");
+        }
+
         return false;
     } // Check for invalid param
 
