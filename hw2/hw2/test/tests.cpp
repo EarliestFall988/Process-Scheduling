@@ -132,6 +132,30 @@ TEST(shortest_job_first, VALID_PCB)
     EXPECT_EQ((unsigned long)15, r.total_run_time);
 }
 
+TEST(shortest_job_first, VALID_PCB1)
+{
+    dyn_array_t *t = dyn_array_create(32, 32, NULL);
+    ScheduleResult_t r = {0, 0, 0};
+    ProcessControlBlock_t pcb1 = {6, 0, 1, false};
+    ProcessControlBlock_t pcb2 = {8, 0, 2, false};
+    ProcessControlBlock_t pcb3 = {7, 0, 3, false};
+    ProcessControlBlock_t pcb4 = {3, 0, 4, false};
+
+    dyn_array_push_back(t, &pcb1);
+    dyn_array_push_back(t, &pcb2);
+    dyn_array_push_back(t, &pcb3);
+    dyn_array_push_back(t, &pcb4);
+
+
+    bool result = false;
+    result = shortest_job_first(t, &r);
+
+    EXPECT_EQ(true, result);
+    EXPECT_EQ(7, r.average_waiting_time);
+    EXPECT_EQ(6, r.average_turnaround_time);
+    EXPECT_EQ((unsigned long)24, r.total_run_time);
+}
+
 // shortest remaining time first tests
 
 TEST(shortest_remaining_time_first, NULL_Ready_Queue)
@@ -225,16 +249,18 @@ TEST(round_robin, Valid_PCB)
 
 TEST(load_process_control_blocks, NULL_File_Name)
 {
-    dyn_array_t *t = dyn_array_create(32, 32, NULL);
+    dyn_array_t *t = dyn_array_create(0, sizeof(ProcessControlBlock_t), NULL);
     t = load_process_control_blocks(NULL);
     EXPECT_TRUE(t == NULL);
+    dyn_array_destroy(t);
 }
 
 TEST(load_process_control_blocks, NULL_File)
 {
-    dyn_array_t *t = dyn_array_create(32, 32, NULL);
+    dyn_array_t *t = dyn_array_create(0, sizeof(ProcessControlBlock_t), NULL);
     t = load_process_control_blocks("test.txt");
     EXPECT_TRUE(t == NULL);
+    dyn_array_destroy(t);
 }
 
 TEST(load_process_control_blocks, Valid_File)
