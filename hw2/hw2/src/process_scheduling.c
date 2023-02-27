@@ -126,82 +126,13 @@ bool priority(dyn_array_t *ready_queue, ScheduleResult_t *result)
     return false;
 }
 
-// bool round_robin(dyn_array_t *ready_queue, ScheduleResult_t *result, size_t quantum)
-// {
-//     if (ready_queue == NULL || result == NULL || quantum <= 0)
-//     {
-//         return false;
-//     } // Check for invalid param
-//     if (!dyn_array_sort(ready_queue, cmpfuncArrival))
-//     {
-//         return false;
-//     }; // Sort array by arrival time
 
-//     float total_run_time = 0;
-//     float wait_time = 0;
-//     size_t n = dyn_array_size(ready_queue);
-//     size_t current_ready_queue_index = 0;
-//     //Calculate the total run time
-//     for(size_t i = 0;i < dyn_array_size(ready_queue);i++)
-//     {
-//         total_run_time += ((ProcessControlBlock_t *)dyn_array_at(ready_queue, i))->remaining_burst_time;
-//     }
-//     result->average_turnaround_time = total_run_time / n;
-//     result->total_run_time = (unsigned long)total_run_time;
-//     //loop through every unit time
-//     while(total_run_time != 0)
-//     {
-//         //Loop back to beginning of ready queue if end has been reached
-//         if(dyn_array_size(ready_queue) <= current_ready_queue_index)
-//         {
-//             current_ready_queue_index = 0;
-//         }
-//        for(size_t i = 0;i < quantum;i++)
-//        {
-//             //Remove the PCB if completed.
-//             if(((ProcessControlBlock_t *)dyn_array_at(ready_queue, current_ready_queue_index))->remaining_burst_time <=0)
-//             {
-//                 dyn_array_erase(ready_queue, current_ready_queue_index);
-//                 current_ready_queue_index--;//Compensate for the index incrementing that occurs wether PCB is completed or not
-//                 break;
-//             }
-//             virtual_cpu((ProcessControlBlock_t *)dyn_array_at(ready_queue, current_ready_queue_index));//Process the PCB
-//             total_run_time--;
-//             wait_time += dyn_array_size(ready_queue) - 1;//EveryPCB in ready queue is waiting except the one that is running
-//        }
-//        current_ready_queue_index++;
-
-//     }
-
-//     result->average_waiting_time = (float)(wait_time / n);
-
-//     // destroy dynamic arrays
-//     dyn_array_destroy(ready_queue);
-
-//     return true;
-// }
 
 // round robin, rewritten for the purpose of testing and comparing with the original round robin
 bool round_robin(dyn_array_t *ready_queue, ScheduleResult_t *result, size_t quantum)
 {
     if (ready_queue == NULL || result == NULL || quantum <= 0)
     {
-
-
-        if (ready_queue == NULL)
-        {
-            printf("ready_queue is null \n");
-        }
-
-        if (result == NULL)
-        {
-            printf("result is null \n");
-        }
-        if (quantum <= 0)
-        {
-            printf("quantum is less than or equal to 0 \n");
-        }
-
         return false;
     } // Check for invalid param
 
@@ -220,7 +151,7 @@ bool round_robin(dyn_array_t *ready_queue, ScheduleResult_t *result, size_t quan
     for (int i = 0; i < n; i++)
     {
         totalBurstTime += ((ProcessControlBlock_t *)dyn_array_at(ready_queue, i))->remaining_burst_time;
-        // printf("totalburstTime: %f\n", totalBurstTime);
+
     }
 
     while (total > 0) // <--| run the process until the ready queue is empty
@@ -233,7 +164,7 @@ bool round_robin(dyn_array_t *ready_queue, ScheduleResult_t *result, size_t quan
             bool completedProcess = current->remaining_burst_time <= 0; // flag to check if the process is completed
             while (q > 0 && !completedProcess)                          // run the process until the quantum is 0 or the process is completed
             {
-                // printf("%ld) completedTime: %d -> %f\n", i, current->remaining_burst_time, current->remaining_burst_time - (double)quantum);
+               
                 virtual_cpu(current); // run the process
 
                 runtime++;
@@ -249,14 +180,12 @@ bool round_robin(dyn_array_t *ready_queue, ScheduleResult_t *result, size_t quan
                     total--;
                 }
 
-                // waittime = waittime + dyn_array_size(ready_queue) - 1;
             }
         }
     }
 
     dyn_array_destroy(ready_queue);
 
-    // printf("%f: %f: %f", completionTime, arrivalTime, totalBurstTime);
 
     waittime = completionTime - arrivalTime - totalBurstTime;
 
@@ -301,7 +230,7 @@ dyn_array_t *load_process_control_blocks(const char *input_file)
     {
         return NULL;
     }
-    printf("%d \n", (int)(num_PCB[0]));
+    // printf("%d \n", (int)(num_PCB[0]));
     // Loop through the file creating dynamic array of specified PCBs
     for (uint32_t i = 0; i < num_PCB[0] * 3; i += 3)
     {
@@ -311,9 +240,9 @@ dyn_array_t *load_process_control_blocks(const char *input_file)
         PCB->arrival = buffer[i + 2];
         PCB->started = false;
         dyn_array_push_back(PCB_array, PCB);
-        printf("%u ", PCB->remaining_burst_time);
-        printf("%u ", PCB->priority);
-        printf("%u\n", PCB->arrival);
+        // printf("%u ", PCB->remaining_burst_time);
+        // printf("%u ", PCB->priority);
+        // printf("%u\n", PCB->arrival);
     }
     fclose(fp);
     return PCB_array;

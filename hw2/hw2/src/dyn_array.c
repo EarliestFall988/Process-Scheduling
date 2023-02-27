@@ -127,7 +127,6 @@ void dyn_array_destroy(dyn_array_t *dyn_array)
 
 
 
-
 void *dyn_array_front(const dyn_array_t *const dyn_array) 
 {
     if (dyn_array && dyn_array->size) 
