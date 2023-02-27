@@ -18,9 +18,18 @@ void virtual_cpu(ProcessControlBlock_t *process_control_block)
     process_control_block->started = true;
 }
 
-int cmpfuncArrival(const void *a, const void *b)
+int cmpfuncArrival(const void *a, const void *b) // compare function for shortest job first
 {
-    return (((ProcessControlBlock_t *)a)->arrival - ((ProcessControlBlock_t *)b)->arrival);
+    if (((ProcessControlBlock_t *)a)->arrival < ((ProcessControlBlock_t *)b)->arrival)
+    {
+        return -1;
+    }
+    else if (((ProcessControlBlock_t *)a)->arrival == ((ProcessControlBlock_t *)b)->arrival)
+    {
+        return 0;
+    }
+
+    return 1;
 }
 
 // first come first serve
@@ -29,7 +38,7 @@ bool first_come_first_serve(dyn_array_t *ready_queue, ScheduleResult_t *result)
     if (ready_queue == NULL || result == NULL) // Check for invalud param
     {
         return false;
-    }                                                 // Check for invalid param
+    }                                                 
     if (!dyn_array_sort(ready_queue, cmpfuncArrival)) // Sort array by arrival time
     {
         return false;
@@ -37,10 +46,11 @@ bool first_come_first_serve(dyn_array_t *ready_queue, ScheduleResult_t *result)
 
     float waittime = 0;
     unsigned long runtime = 0;
+    float total_wait_time;
     int n = dyn_array_size(ready_queue);
     for (int i = 0; i < n; i++) // loop through the ready queue
     {
-
+        total_wait_time += ((ProcessControlBlock_t *)dyn_array_at(ready_queue, i))->arrival;
         int x = n - i;                                                                            // set the wait time multiplier
         runtime += ((ProcessControlBlock_t *)dyn_array_at(ready_queue, i))->remaining_burst_time; // add the burst time to the runtime
         if (i > 0)
@@ -61,8 +71,8 @@ bool first_come_first_serve(dyn_array_t *ready_queue, ScheduleResult_t *result)
 
     dyn_array_destroy(ready_queue); // cleanup
 
-    result->average_waiting_time = waittime / n; // set the result
-    result->average_turnaround_time = runtime / n;
+    result->average_waiting_time = (waittime-total_wait_time) / n; // set the result
+    result->average_turnaround_time = ((float)runtime + waittime-total_wait_time) / n;
     result->total_run_time = runtime;
     return true; // return true
 }
@@ -87,75 +97,41 @@ bool shortest_job_first(dyn_array_t *ready_queue, ScheduleResult_t *result)
     if (ready_queue == NULL || result == NULL) // Check for invalud param
     {
         return false;
-    } // Check for invalid param
-    if (!dyn_array_sort(ready_queue, cmpfuncShortest))
+    }                                                 // Check for invalid param
+    if (!dyn_array_sort(ready_queue, cmpfuncShortest)) // Sort array by arrival time
     {
         return false;
-    }; // Sort array by arrival time
+    };
 
-    // float arrivalTime = 0;
-
-    // unsigned long waittime = 0;                  // set the wait time
-    unsigned long runtime = 0;           // set the runtime
-    int n = dyn_array_size(ready_queue); // set the size of the ready queue
-
-    unsigned long turnAroundTime = 0;
-    unsigned long waiting = 0;
-
-    float totalTurnAroundTime = 0;
-    float totalWaitingTime = 0;
-
-    // printf("turn around %f waiting %f\n", turnAroundTime, waiting);
-
-    // for (int i = 0; i < n; i++)          // loop through the ready queue
-    // {
-
-    //     arrivalTime += i;
-
-    //     int x = n - i;                                                                            // set the wait time multiplier
-    //     runtime += ((ProcessControlBlock_t *)dyn_array_at(ready_queue, i))->remaining_burst_time; // add the burst time to the runtime
-    //     if (i > 0)
-    //     {
-    //         waittime += ((ProcessControlBlock_t *)dyn_array_at(ready_queue, i - 1))->remaining_burst_time * x; // add the wait time to the waittime
-    //     }
-    // }
-
-    for (int i = 0; i < n; i++) // run the process until the burst time is 0
+    float waittime = 0;
+    unsigned long runtime = 0;
+    float total_wait_time;
+    int n = dyn_array_size(ready_queue);
+    for (int i = 0; i < n; i++) // loop through the ready queue
     {
-        ProcessControlBlock_t *current = (ProcessControlBlock_t *)dyn_array_at(ready_queue, i); // set the current process
+        total_wait_time += ((ProcessControlBlock_t *)dyn_array_at(ready_queue, i))->arrival;
+        int x = n - i;                                                                            // set the wait time multiplier
+        runtime += ((ProcessControlBlock_t *)dyn_array_at(ready_queue, i))->remaining_burst_time; // add the burst time to the runtime
+        if (i > 0)
+        {
+            waittime += ((ProcessControlBlock_t *)dyn_array_at(ready_queue, i - 1))->remaining_burst_time * x; // add the wait time to the waittime
+        }
+    }
 
-        float totalBurst = current->remaining_burst_time;
+    for (int i = 0; i < n; i++)
+    {
+        ProcessControlBlock_t *current = (ProcessControlBlock_t *)dyn_array_at(ready_queue, i);
 
         while (current->remaining_burst_time > 0) // run the process until the burst time is 0
         {
-            virtual_cpu(current); // run the process through the virtual CPU
-            runtime++;
-
-            if (current->remaining_burst_time <= 0)
-            {
-                turnAroundTime = runtime - current->arrival;
-                waiting = turnAroundTime - totalBurst;
-
-                totalTurnAroundTime = turnAroundTime;
-                totalWaitingTime = waiting;
-
-                printf("runtime %ld arrival %d\n", runtime, current->arrival);
-
-                printf("turn around %ld waiting %ld\n", turnAroundTime, waiting);
-            }
+            virtual_cpu(current);
         }
-
-        // printf("waitTime %ld\n", waittime);
     }
 
     dyn_array_destroy(ready_queue); // cleanup
 
-    // float sumExitTime = waittime + runtime;
-
-    // float turnAroundTime = sumExitTime - arrivalTime;
-
-    result->average_waiting_time = totalWaitingTime / n;
-    result->average_turnaround_time = totalTurnAroundTime / n;
+    result->average_waiting_time = (waittime-total_wait_time) / n; // set the result
+    result->average_turnaround_time = ((float)runtime + waittime-total_wait_time) / n;
     result->total_run_time = runtime;
     return true; // return true
 }

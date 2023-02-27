@@ -71,11 +71,11 @@ TEST(first_come_first_serve, VALID_PCB)
 {
     dyn_array_t *t = dyn_array_create(32, sizeof(ProcessControlBlock_t), NULL);
     ScheduleResult_t r = {0, 0, 0};
-    ProcessControlBlock_t pcb1 = {1, 0, 1, false};
-    ProcessControlBlock_t pcb2 = {2, 0, 2, false};
-    ProcessControlBlock_t pcb3 = {3, 0, 3, false};
-    ProcessControlBlock_t pcb4 = {4, 0, 4, false};
-    ProcessControlBlock_t pcb5 = {5, 0, 5, false};
+    ProcessControlBlock_t pcb1 = {2, 0, 0, false};
+    ProcessControlBlock_t pcb2 = {6, 0, 1, false};
+    ProcessControlBlock_t pcb3 = {4, 0, 2, false};
+    ProcessControlBlock_t pcb4 = {9, 0, 3, false};
+    ProcessControlBlock_t pcb5 = {12, 0, 6, false};
     dyn_array_push_back(t, &pcb1);
     dyn_array_push_back(t, &pcb2);
     dyn_array_push_back(t, &pcb3);
@@ -86,9 +86,9 @@ TEST(first_come_first_serve, VALID_PCB)
     result = first_come_first_serve(t, &r);
 
     EXPECT_EQ(true, result);
-    EXPECT_EQ(4, r.average_waiting_time);
-    EXPECT_EQ(3, r.average_turnaround_time);
-    EXPECT_EQ((unsigned long)15, r.total_run_time);
+    EXPECT_TRUE((float)6.2 == (float)r.average_waiting_time);
+    EXPECT_TRUE((float)12.8 ==  (float)r.average_turnaround_time);
+    EXPECT_EQ((unsigned long)33, r.total_run_time);
 }
 
 // shortest job first tests
