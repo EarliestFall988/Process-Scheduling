@@ -42,6 +42,8 @@ int main(int argc, char **argv)
 
 // first come first serve tests
 
+// Null result test
+
 TEST(first_come_first_serve, NULL_Schedule_Result)
 {
     dyn_array_t *t = dyn_array_create(5, sizeof(ProcessControlBlock_t), NULL);
@@ -51,6 +53,7 @@ TEST(first_come_first_serve, NULL_Schedule_Result)
     EXPECT_EQ(false, result);
 }
 
+// NULL Dynamic Array Test
 TEST(first_come_first_serve, NULL_Dynamic_Array)
 {
     ScheduleResult_t r = {0, 0, 0};
@@ -99,6 +102,7 @@ TEST(shortest_job_first, NULL_Ready_Queue)
     EXPECT_EQ(false, result);
 }
 
+//NULL Result test
 TEST(shortest_job_first, NULL_Schedule_Result)
 {
     dyn_array_t *t = dyn_array_create(5, 5, NULL);
@@ -108,6 +112,7 @@ TEST(shortest_job_first, NULL_Schedule_Result)
     EXPECT_EQ(false, result);
 }
 
+// Valid PCB Test
 TEST(shortest_job_first, VALID_PCB)
 {
     dyn_array_t *t = dyn_array_create(32, sizeof(ProcessControlBlock_t), NULL);
@@ -132,6 +137,7 @@ TEST(shortest_job_first, VALID_PCB)
     EXPECT_EQ((unsigned long)16, r.total_run_time);
 }
 
+//Second Valid PCB Test
 TEST(shortest_job_first, VALID_PCB1)
 {
     dyn_array_t *t = dyn_array_create(32, sizeof(ProcessControlBlock_t), NULL);
@@ -158,6 +164,7 @@ TEST(shortest_job_first, VALID_PCB1)
 
 // shortest remaining time first tests
 
+//NULL Dynamic Array Test
 TEST(shortest_remaining_time_first, NULL_Ready_Queue)
 {
     ScheduleResult_t r = {0, 0, 0};
@@ -176,6 +183,7 @@ TEST(shortest_remaining_time_first, NULL_Schedule_Result)
     EXPECT_EQ(false, result);
 }
 
+//Valid PCB Test
 TEST(shortest_remaining_time_first, Valid_PCB)
 {
     dyn_array_t *t = dyn_array_create(4, sizeof(ProcessControlBlock_t), NULL);
@@ -203,6 +211,7 @@ TEST(shortest_remaining_time_first, Valid_PCB)
 
 // round robin tests
 
+//NULL Dynamic Array
 TEST(round_robin, NULL_Ready_Queue)
 {
     // ScheduleResult_t r = {0, 0, 0};
@@ -212,6 +221,7 @@ TEST(round_robin, NULL_Ready_Queue)
     EXPECT_EQ(false, result);
 }
 
+//NULL Result Test
 TEST(round_robin, NULL_Schedule_Result)
 {
     dyn_array_t *t = dyn_array_create(5, sizeof(ProcessControlBlock_t), NULL);
@@ -250,6 +260,7 @@ TEST(round_robin, Valid_PCB)
 
 // loading process control block tests
 
+// NULL File Name
 TEST(load_process_control_blocks, NULL_File_Name)
 {
     dyn_array_t *t = dyn_array_create(0, sizeof(ProcessControlBlock_t), NULL);
@@ -258,6 +269,7 @@ TEST(load_process_control_blocks, NULL_File_Name)
     dyn_array_destroy(t);
 }
 
+//NULL FILE
 TEST(load_process_control_blocks, NULL_File)
 {
     dyn_array_t *t = dyn_array_create(0, sizeof(ProcessControlBlock_t), NULL);
@@ -265,6 +277,7 @@ TEST(load_process_control_blocks, NULL_File)
     EXPECT_TRUE(t == NULL);
 }
 
+// Valid file test comparing size
 TEST(load_process_control_blocks, Valid_File)
 {
 
