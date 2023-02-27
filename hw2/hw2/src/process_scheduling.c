@@ -193,30 +193,31 @@ bool round_robin(dyn_array_t *ready_queue, ScheduleResult_t *result, size_t quan
 
     float n = dyn_array_size(ready_queue);
 
+    float total = dyn_array_size(ready_queue);
+
     float completionTime = 0;
     float arrivalTime = 0;
     float waittime = 0;
-    // float turnaroundTime = 0;
+    float turnaroundTime = 0;
     float totalBurstTime = 0;
 
     for (int i = 0; i < n; i++)
     {
         totalBurstTime += ((ProcessControlBlock_t *)dyn_array_at(ready_queue, i))->remaining_burst_time;
-        printf("totalburstTime: %f\n", totalBurstTime);
+        // printf("totalburstTime: %f\n", totalBurstTime);
     }
 
-    dyn_array_t *completed = dyn_array_create(0, sizeof(ProcessControlBlock_t), NULL);
-
-    while (dyn_array_size(ready_queue) != 0) // <--| run the process until the ready queue is empty
+    while (total > 0) // <--| run the process until the ready queue is empty
     {
         for (size_t i = 0; i < dyn_array_size(ready_queue); i++) // <--| loop through the ready queue
         {
             ProcessControlBlock_t *current = (ProcessControlBlock_t *)dyn_array_at(ready_queue, i);
 
-            int q = quantum;                   // set the quantum
-            bool completedProcess = false;     // flag to check if the process is completed
-            while (q > 0 && !completedProcess) // run the process until the quantum is 0 or the process is completed
+            int q = quantum;                                            // set the quantum
+            bool completedProcess = current->remaining_burst_time <= 0; // flag to check if the process is completed
+            while (q > 0 && !completedProcess)                          // run the process until the quantum is 0 or the process is completed
             {
+                // printf("%ld) completedTime: %d -> %f\n", i, current->remaining_burst_time, current->remaining_burst_time - (double)quantum);
                 virtual_cpu(current); // run the process
 
                 runtime++;
@@ -229,8 +230,7 @@ bool round_robin(dyn_array_t *ready_queue, ScheduleResult_t *result, size_t quan
                     completionTime += runtime;
                     arrivalTime += current->arrival;
 
-                    dyn_array_push_back(completed, dyn_array_at(ready_queue, i));
-                    dyn_array_erase(ready_queue, i);
+                    total--;
                 }
 
                 // waittime = waittime + dyn_array_size(ready_queue) - 1;
@@ -239,14 +239,15 @@ bool round_robin(dyn_array_t *ready_queue, ScheduleResult_t *result, size_t quan
     }
 
     dyn_array_destroy(ready_queue);
-    dyn_array_destroy(completed);
 
-    printf("%f: %f: %f", completionTime, arrivalTime, totalBurstTime);
+    // printf("%f: %f: %f", completionTime, arrivalTime, totalBurstTime);
 
     waittime = completionTime - arrivalTime - totalBurstTime;
 
+    turnaroundTime = completionTime - arrivalTime;
+
     result->average_waiting_time = waittime / n;
-    result->average_turnaround_time = runtime / n;
+    result->average_turnaround_time = turnaroundTime / n;
     result->total_run_time = runtime;
 
     return true;
