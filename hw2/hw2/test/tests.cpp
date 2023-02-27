@@ -44,7 +44,7 @@ int main(int argc, char **argv)
 
 TEST(first_come_first_serve, NULL_Schedule_Result)
 {
-    dyn_array_t *t = dyn_array_create(5, 5, NULL);
+    dyn_array_t *t = dyn_array_create(5, sizeof(ProcessControlBlock_t), NULL);
     bool result = false;
     result = first_come_first_serve(t, NULL);
 
@@ -54,7 +54,7 @@ TEST(first_come_first_serve, NULL_Schedule_Result)
 TEST(first_come_first_serve, NULL_Dynamic_Array)
 {
     ScheduleResult_t r = {0, 0, 0};
-    dyn_array_t *t = dyn_array_create(32, 32, NULL);
+    dyn_array_t *t = dyn_array_create(32, sizeof(ProcessControlBlock_t), NULL);
 
     bool result = false;
 
@@ -66,7 +66,7 @@ TEST(first_come_first_serve, NULL_Dynamic_Array)
 // test valid pcb
 TEST(first_come_first_serve, VALID_PCB)
 {
-    dyn_array_t *t = dyn_array_create(32, 32, NULL);
+    dyn_array_t *t = dyn_array_create(32, sizeof(ProcessControlBlock_t), NULL);
     ScheduleResult_t r = {0, 0, 0};
     ProcessControlBlock_t pcb1 = {1, 0, 1, false};
     ProcessControlBlock_t pcb2 = {2, 0, 2, false};
@@ -93,7 +93,7 @@ TEST(first_come_first_serve, VALID_PCB)
 TEST(shortest_job_first, NULL_Ready_Queue)
 {
     ScheduleResult_t r = {0, 0, 0};
-    dyn_array_t *t = dyn_array_create(32, 32, NULL);
+    dyn_array_t *t = dyn_array_create(32, sizeof(ProcessControlBlock_t), NULL);
     bool result = false;
     result = shortest_job_first(t, &r);
     EXPECT_EQ(false, result);
@@ -110,7 +110,7 @@ TEST(shortest_job_first, NULL_Schedule_Result)
 
 TEST(shortest_job_first, VALID_PCB)
 {
-    dyn_array_t *t = dyn_array_create(32, 32, NULL);
+    dyn_array_t *t = dyn_array_create(32, sizeof(ProcessControlBlock_t), NULL);
     ScheduleResult_t r = {0, 0, 0};
     ProcessControlBlock_t pcb1 = {1, 0, 1, false};
     ProcessControlBlock_t pcb2 = {2, 0, 2, false};
@@ -134,7 +134,7 @@ TEST(shortest_job_first, VALID_PCB)
 
 TEST(shortest_job_first, VALID_PCB1)
 {
-    dyn_array_t *t = dyn_array_create(32, 32, NULL);
+    dyn_array_t *t = dyn_array_create(32, sizeof(ProcessControlBlock_t), NULL);
     ScheduleResult_t r = {0, 0, 0};
     ProcessControlBlock_t pcb1 = {6, 0, 1, false};
     ProcessControlBlock_t pcb2 = {8, 0, 2, false};
@@ -161,7 +161,7 @@ TEST(shortest_job_first, VALID_PCB1)
 TEST(shortest_remaining_time_first, NULL_Ready_Queue)
 {
     ScheduleResult_t r = {0, 0, 0};
-    dyn_array_t *t = dyn_array_create(32, 32, NULL);
+    dyn_array_t *t = dyn_array_create(32, sizeof(ProcessControlBlock_t), NULL);
     bool result = false;
     result = shortest_remaining_time_first(t, &r);
     EXPECT_EQ(false, result);
@@ -169,7 +169,7 @@ TEST(shortest_remaining_time_first, NULL_Ready_Queue)
 
 TEST(shortest_remaining_time_first, NULL_Schedule_Result)
 {
-    dyn_array_t *t = dyn_array_create(5, 5, NULL);
+    dyn_array_t *t = dyn_array_create(5, sizeof(ProcessControlBlock_t), NULL);
     bool result = false;
     result = shortest_remaining_time_first(t, NULL);
 
@@ -203,7 +203,7 @@ TEST(shortest_remaining_time_first, Valid_PCB)
 TEST(round_robin, NULL_Ready_Queue)
 {
     // ScheduleResult_t r = {0, 0, 0};
-    dyn_array_t *t = dyn_array_create(32, 32, NULL);
+    dyn_array_t *t = dyn_array_create(32, sizeof(ProcessControlBlock_t), NULL);
     bool result = false;
     result = round_robin(t, NULL, QUANTUM);
     EXPECT_EQ(false, result);
@@ -211,7 +211,7 @@ TEST(round_robin, NULL_Ready_Queue)
 
 TEST(round_robin, NULL_Schedule_Result)
 {
-    dyn_array_t *t = dyn_array_create(5, 5, NULL);
+    dyn_array_t *t = dyn_array_create(5, sizeof(ProcessControlBlock_t), NULL);
     bool result = false;
     result = round_robin(t, NULL, QUANTUM);
 
@@ -260,32 +260,11 @@ TEST(load_process_control_blocks, NULL_File)
     dyn_array_t *t = dyn_array_create(0, sizeof(ProcessControlBlock_t), NULL);
     t = load_process_control_blocks("test.txt");
     EXPECT_TRUE(t == NULL);
-    dyn_array_destroy(t);
 }
 
 TEST(load_process_control_blocks, Valid_File)
 {
-    // dyn_array_t *correct = dyn_array_create(4, sizeof(ProcessControlBlock_t), NULL); // no idea what correct is yet.
-
-    // ProcessControlBlock_t pcb1 = {1, 0, 0, 10};
-    // ProcessControlBlock_t pcb2 = {2, 0, 0, 5};
-
-    // dyn_array_push_back(correct, &pcb1);
-    // dyn_array_push_back(correct, &pcb2);
 
     dyn_array_t *t = load_process_control_blocks("../pcb.bin");
     EXPECT_EQ((size_t)4, dyn_array_size(t));
-    dyn_array_destroy(t);
-
-    // for (int i = 0; i < dyn_array_size(t); i++)
-    // {
-    //     ProcessControlBlock_t *pcb = dyn_array_at(t, i);
-    //     ProcessControlBlock_t *pcb_correct = dyn_array_at(correct, i);
-    //     EXPECT_TRUE(pcb->pid == pcb_correct->pid);
-    //     EXPECT_TRUE(pcb->arrival_time == pcb_correct->arrival_time);
-    //     EXPECT_TRUE(pcb->priority == pcb_correct->priority);
-    //     EXPECT_TRUE(pcb->cpu_burst == pcb_correct->cpu_burst);
-    // }
-    // dyn_array_destroy(t);
-    // dyn_array_destroy(correct);
 }
