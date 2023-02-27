@@ -82,81 +82,167 @@ int cmpfuncShortest(const void *a, const void *b) // compare function for shorte
 }
 
 // shortest job first
+// bool shortest_job_first(dyn_array_t *ready_queue, ScheduleResult_t *result)
+// {
+//     if (ready_queue == NULL || result == NULL) // Check for invalud param
+//     {
+//         return false;
+//     } // Check for invalid param
+//     if (!dyn_array_sort(ready_queue, cmpfuncShortest))
+//     {
+//         return false;
+//     }; // Sort array by arrival time
+
+//     float arrivalTime = 0;
+
+//     float waittime = 0;                  // set the wait time
+//     unsigned long runtime = 0;           // set the runtime
+//     int n = dyn_array_size(ready_queue); // set the size of the ready queue
+
+//     unsigned long turnAroundTime = 0;
+//     unsigned long waiting = 0;
+
+//     float totalTurnAroundTime = 0;
+
+//     // float exitTime = 0;
+
+//     // float totalWaitingTime = 0;
+
+//     // printf("turn around %f waiting %f\n", turnAroundTime, waiting);
+
+//     for (int i = 0; i < n; i++) // loop through the ready queue
+//     {
+
+//         arrivalTime += i;
+
+//         ProcessControlBlock_t *current = (ProcessControlBlock_t *)dyn_array_at(ready_queue, i);
+
+//         int x = n - i; // set the wait time multiplier
+//         runtime += current->remaining_burst_time;
+//         printf("burst %d", current->remaining_burst_time); // add the burst time to the runtime
+//         if (i > 0)
+//         {
+//             waittime += ((ProcessControlBlock_t *)dyn_array_at(ready_queue, i - 1))->remaining_burst_time * x; // add the wait time to the waittime
+//         }
+//     }
+
+//     for (int i = 0; i < n; i++) // run the process until the burst time is 0
+//     {
+//         ProcessControlBlock_t *current = (ProcessControlBlock_t *)dyn_array_at(ready_queue, i); // set the current process
+
+//         // float totalBurst = current->remaining_burst_time;
+
+//         while (current->remaining_burst_time > 0) // run the process until the burst time is 0
+//         {
+//             virtual_cpu(current); // run the process through the virtual CPU
+
+//             if (current->remaining_burst_time <= 0)
+//             {
+
+//                 // turnAroundTime = runtime - current->arrival;
+//                 // waiting = turnAroundTime - totalBurst;
+
+//                 // totalTurnAroundTime = turnAroundTime;
+//                 // totalWaitingTime = waiting;
+
+//                 printf("runtime %ld arrival %d\n", runtime, current->arrival);
+
+//                 printf("turn around %ld waiting %ld\n", turnAroundTime, waiting);
+//             }
+//         }
+
+//         // printf("waitTime %ld\n", waittime);
+//     }
+
+//     dyn_array_destroy(ready_queue); // cleanup
+
+//     // float sumExitTime = waittime + runtime;
+
+//     // float turnAroundTime = sumExitTime - arrivalTime;
+
+//     totalTurnAroundTime = waittime + runtime;
+
+//     result->average_waiting_time = waittime / n;
+//     result->average_turnaround_time = totalTurnAroundTime / n;
+//     result->total_run_time = runtime;
+//     return true; // return true
+// }
+
+// shortest job first
 bool shortest_job_first(dyn_array_t *ready_queue, ScheduleResult_t *result)
 {
-    if (ready_queue == NULL || result == NULL) // Check for invalud param
+
+    if (ready_queue == NULL || result == NULL)
     {
         return false;
     } // Check for invalid param
-    if (!dyn_array_sort(ready_queue, cmpfuncShortest))
+    if (!dyn_array_sort(ready_queue, cmpfuncArrival))
     {
         return false;
     }; // Sort array by arrival time
 
-    // float arrivalTime = 0;
-
-    // unsigned long waittime = 0;                  // set the wait time
-    unsigned long runtime = 0;           // set the runtime
-    int n = dyn_array_size(ready_queue); // set the size of the ready queue
-
-    unsigned long turnAroundTime = 0;
-    unsigned long waiting = 0;
-
-    float totalTurnAroundTime = 0;
-    float totalWaitingTime = 0;
-
-    // printf("turn around %f waiting %f\n", turnAroundTime, waiting);
-
-    // for (int i = 0; i < n; i++)          // loop through the ready queue
-    // {
-
-    //     arrivalTime += i;
-
-    //     int x = n - i;                                                                            // set the wait time multiplier
-    //     runtime += ((ProcessControlBlock_t *)dyn_array_at(ready_queue, i))->remaining_burst_time; // add the burst time to the runtime
-    //     if (i > 0)
-    //     {
-    //         waittime += ((ProcessControlBlock_t *)dyn_array_at(ready_queue, i - 1))->remaining_burst_time * x; // add the wait time to the waittime
-    //     }
-    // }
-
-    for (int i = 0; i < n; i++) // run the process until the burst time is 0
+    float total_run_time = 0;               // set the total run time to 0
+    float wait_time = 0;                    // set the wait time to 0
+    size_t n = dyn_array_size(ready_queue); // set the number of processes to the size of the ready queue
+    size_t current_ready_queue_index = 0;   // set the current ready queue index to 0
+    dyn_array_t *run_que = dyn_array_create(0, sizeof(ProcessControlBlock_t), NULL);
+    // Calculate the total run time
+    for (size_t i = 0; i < dyn_array_size(ready_queue); i++) // loop through the ready queue
     {
-        ProcessControlBlock_t *current = (ProcessControlBlock_t *)dyn_array_at(ready_queue, i); // set the current process
-
-        float totalBurst = current->remaining_burst_time;
-
-        while (current->remaining_burst_time > 0) // run the process until the burst time is 0
+        total_run_time += ((ProcessControlBlock_t *)dyn_array_at(ready_queue, i))->remaining_burst_time; // add the remaining burst time to the total run time
+    }
+    // loop through every unit time
+    for (size_t i = 0; i < (size_t)total_run_time; i++) // loop through the total run time
+    {
+        // Add every element to the run que that has an arrival time less or equal to current time
+        if (dyn_array_size(ready_queue) > current_ready_queue_index)
         {
-            virtual_cpu(current); // run the process through the virtual CPU
-            runtime++;
-
-            if (current->remaining_burst_time <= 0)
+            if (((ProcessControlBlock_t *)dyn_array_at(ready_queue, current_ready_queue_index))->arrival <= (uint32_t)i) // check if the arrival time is less than or equal to the current time
             {
-                turnAroundTime = runtime - current->arrival;
-                waiting = turnAroundTime - totalBurst;
-
-                totalTurnAroundTime = turnAroundTime;
-                totalWaitingTime = waiting;
-
-                printf("runtime %ld arrival %d\n", runtime, current->arrival);
-
-                printf("turn around %ld waiting %ld\n", turnAroundTime, waiting);
+                dyn_array_push_back(run_que, dyn_array_at(ready_queue, current_ready_queue_index)); // add the PCB to the run queue
+                current_ready_queue_index++;                                                        // increment the current ready queue index
             }
         }
-
-        // printf("waitTime %ld\n", waittime);
+        // Process any PCBs in the run queue
+        if (dyn_array_size(run_que) != 0)
+        {
+            // if (!dyn_array_sort(run_que, cmpfuncRemainingTime))
+            // {
+            //     return false; // sort the run queue by remaining burst time
+            // }
+            wait_time += dyn_array_size(run_que) - 1;                                           // add the number of PCBs in the run queue to the wait time
+            virtual_cpu((ProcessControlBlock_t *)dyn_array_at(run_que, 0));                     // run the PCB at the front of the run queue
+            if (((ProcessControlBlock_t *)dyn_array_at(run_que, 0))->remaining_burst_time == 0) // check if the PCB is done
+            {
+                ProcessControlBlock_t *current = ((ProcessControlBlock_t *)dyn_array_at(run_que, 0));
+                current->priority = i;
+                dyn_array_erase(run_que, 0); // remove the PCB from the run queue
+            }
+        }
     }
 
+    float turnAroundTime = 0;
+    float totalTurnAroundTime = 0;
+
+    for (size_t i = 0; i < n; i++)
+    {
+        ProcessControlBlock_t *current = (ProcessControlBlock_t *)dyn_array_at(ready_queue, i);
+
+        turnAroundTime = current->priority - current->arrival;
+        totalTurnAroundTime += turnAroundTime;
+
+        printf("priority %d\n", current->priority);
+    }
+
+    // printf("wait time: %f", wait_time / (float)n);
+
+    result->average_waiting_time = wait_time / n;              // calculate the average waiting time
+    result->average_turnaround_time = totalTurnAroundTime / n; // calculate the average turnaround time
+    result->total_run_time = (unsigned long)total_run_time;    // set the total run time
+
     dyn_array_destroy(ready_queue); // cleanup
+    dyn_array_destroy(run_que);
 
-    // float sumExitTime = waittime + runtime;
-
-    // float turnAroundTime = sumExitTime - arrivalTime;
-
-    result->average_waiting_time = totalWaitingTime / n;
-    result->average_turnaround_time = totalTurnAroundTime / n;
-    result->total_run_time = runtime;
     return true; // return true
 }
 
@@ -340,9 +426,9 @@ bool shortest_remaining_time_first(dyn_array_t *ready_queue, ScheduleResult_t *r
 
     // printf("wait time: %f", wait_time / (float)n);
 
-    result->average_waiting_time = wait_time / n;           // calculate the average waiting time
-    result->average_turnaround_time = (total_run_time + wait_time) / n;   // calculate the average turnaround time
-    result->total_run_time = (unsigned long)total_run_time; // set the total run time
+    result->average_waiting_time = wait_time / n;                       // calculate the average waiting time
+    result->average_turnaround_time = (total_run_time + wait_time) / n; // calculate the average turnaround time
+    result->total_run_time = (unsigned long)total_run_time;             // set the total run time
 
     dyn_array_destroy(ready_queue); // cleanup
     dyn_array_destroy(run_que);
