@@ -209,19 +209,18 @@ TEST(round_robin, Valid_PCB)
 
     bool result = false;
     int quantum = 6;
-    result = round_robin(t, &r, quantum);       // 24, 3, 3 
-
-    // EXPECT_EQ(true, result);
-    // // EXPECT_TRUE(abs((float)(17 / 3.0) - r.average_waiting_time) < .001); //where did the 17 and ten come from??
-    // EXPECT_EQ(45, r.average_waiting_time);
-    // EXPECT_TRUE(abs(10.0 - r.average_turnaround_time) < .001);
-    // EXPECT_EQ((unsigned long)30, r.total_run_time);
+    result = round_robin(t, &r, quantum);
 
     EXPECT_EQ(true, result);
     EXPECT_EQ(14.75, r.average_waiting_time);
     EXPECT_EQ(23.25, r.average_turnaround_time);
     EXPECT_EQ((unsigned long)34, r.total_run_time);
 }
+
+
+
+
+
 // loading process control block tests
 
 TEST(load_process_control_blocks, NULL_File_Name)

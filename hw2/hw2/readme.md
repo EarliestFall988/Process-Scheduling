@@ -11,3 +11,6 @@ You can manually copy the time analysis from console and paste it to this readme
 ---------------------------------------------------------------------------
 Add your scheduling algorithm analysis below this line in a readable format. 
 ---------------------------------------------------------------------------
+
+Team members:
+- Name: Granite Bock, Taylor Howell, Amy Neeland
