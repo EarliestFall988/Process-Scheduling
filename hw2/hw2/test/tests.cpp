@@ -112,11 +112,11 @@ TEST(shortest_job_first, VALID_PCB)
 {
     dyn_array_t *t = dyn_array_create(32, sizeof(ProcessControlBlock_t), NULL);
     ScheduleResult_t r = {0, 0, 0};
-    ProcessControlBlock_t pcb1 = {1, 0, 1, false};
-    ProcessControlBlock_t pcb2 = {2, 0, 2, false};
-    ProcessControlBlock_t pcb3 = {3, 0, 3, false};
-    ProcessControlBlock_t pcb4 = {4, 0, 4, false};
-    ProcessControlBlock_t pcb5 = {5, 0, 5, false};
+    ProcessControlBlock_t pcb1 = {1, 0, 3, false};
+    ProcessControlBlock_t pcb2 = {4, 0, 1, false};
+    ProcessControlBlock_t pcb3 = {2, 0, 4, false};
+    ProcessControlBlock_t pcb4 = {6, 0, 0, false};
+    ProcessControlBlock_t pcb5 = {3, 0, 2, false};
     dyn_array_push_back(t, &pcb1);
     dyn_array_push_back(t, &pcb2);
     dyn_array_push_back(t, &pcb3);
@@ -127,9 +127,9 @@ TEST(shortest_job_first, VALID_PCB)
     result = shortest_job_first(t, &r);
 
     EXPECT_EQ(true, result);
-    EXPECT_EQ(4, r.average_waiting_time);
-    EXPECT_EQ(3, r.average_turnaround_time);
-    EXPECT_EQ((unsigned long)15, r.total_run_time);
+    EXPECT_EQ(3.8, r.average_waiting_time);
+    EXPECT_EQ(7, r.average_turnaround_time);
+    EXPECT_EQ((unsigned long)16, r.total_run_time);
 }
 
 TEST(shortest_job_first, VALID_PCB1)
@@ -152,7 +152,7 @@ TEST(shortest_job_first, VALID_PCB1)
 
     EXPECT_EQ(true, result);
     EXPECT_EQ(7, r.average_waiting_time);
-    EXPECT_EQ(6, r.average_turnaround_time);
+    EXPECT_EQ(7, r.average_turnaround_time);
     EXPECT_EQ((unsigned long)24, r.total_run_time);
 }
 
@@ -180,22 +180,25 @@ TEST(shortest_remaining_time_first, Valid_PCB)
 {
     dyn_array_t *t = dyn_array_create(4, sizeof(ProcessControlBlock_t), NULL);
     ScheduleResult_t r = {0, 0, 0};
-    ProcessControlBlock_t pcb1 = {8, 0, 0, false};
-    ProcessControlBlock_t pcb2 = {4, 0, 1, false};
-    ProcessControlBlock_t pcb3 = {9, 0, 2, false};
-    ProcessControlBlock_t pcb4 = {5, 0, 3, false};
+    ProcessControlBlock_t pcb1 = {6, 0, 2, false};
+    ProcessControlBlock_t pcb2 = {2, 0, 5, false};
+    ProcessControlBlock_t pcb3 = {8, 0, 1, false};
+    ProcessControlBlock_t pcb4 = {3, 0, 0, false};
+    ProcessControlBlock_t pcb5 = {4, 0, 4, false};
+
     dyn_array_push_back(t, &pcb1);
     dyn_array_push_back(t, &pcb2);
     dyn_array_push_back(t, &pcb3);
     dyn_array_push_back(t, &pcb4);
+    dyn_array_push_back(t, &pcb5);
 
     bool result = false;
     result = shortest_remaining_time_first(t, &r);
 
     EXPECT_EQ(true, result);
-    EXPECT_EQ((float)6.5, r.average_waiting_time);
-    EXPECT_EQ((float)6.5, r.average_turnaround_time);
-    EXPECT_EQ((unsigned long)26, r.total_run_time);
+    EXPECT_EQ((float)4.6, r.average_waiting_time);
+    EXPECT_TRUE((float)9.2 == (float)r.average_turnaround_time);
+    EXPECT_EQ((unsigned long)23, r.total_run_time);
 }
 
 // round robin tests
