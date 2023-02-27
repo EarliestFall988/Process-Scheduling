@@ -18,9 +18,18 @@ void virtual_cpu(ProcessControlBlock_t *process_control_block)
     process_control_block->started = true;
 }
 
-int cmpfuncArrival(const void *a, const void *b)
+int cmpfuncArrival(const void *a, const void *b) // compare function for shortest job first
 {
-    return (((ProcessControlBlock_t *)a)->arrival - ((ProcessControlBlock_t *)b)->arrival);
+    if (((ProcessControlBlock_t *)a)->arrival < ((ProcessControlBlock_t *)b)->arrival)
+    {
+        return -1;
+    }
+    else if (((ProcessControlBlock_t *)a)->arrival == ((ProcessControlBlock_t *)b)->arrival)
+    {
+        return 0;
+    }
+
+    return 1;
 }
 
 // first come first serve
@@ -29,7 +38,7 @@ bool first_come_first_serve(dyn_array_t *ready_queue, ScheduleResult_t *result)
     if (ready_queue == NULL || result == NULL) // Check for invalud param
     {
         return false;
-    }                                                 // Check for invalid param
+    }                                                 
     if (!dyn_array_sort(ready_queue, cmpfuncArrival)) // Sort array by arrival time
     {
         return false;
@@ -37,10 +46,11 @@ bool first_come_first_serve(dyn_array_t *ready_queue, ScheduleResult_t *result)
 
     float waittime = 0;
     unsigned long runtime = 0;
+    float total_wait_time;
     int n = dyn_array_size(ready_queue);
     for (int i = 0; i < n; i++) // loop through the ready queue
     {
-
+        total_wait_time += ((ProcessControlBlock_t *)dyn_array_at(ready_queue, i))->arrival;
         int x = n - i;                                                                            // set the wait time multiplier
         runtime += ((ProcessControlBlock_t *)dyn_array_at(ready_queue, i))->remaining_burst_time; // add the burst time to the runtime
         if (i > 0)
@@ -61,8 +71,8 @@ bool first_come_first_serve(dyn_array_t *ready_queue, ScheduleResult_t *result)
 
     dyn_array_destroy(ready_queue); // cleanup
 
-    result->average_waiting_time = waittime / n; // set the result
-    result->average_turnaround_time = runtime / n;
+    result->average_waiting_time = (waittime-total_wait_time) / n; // set the result
+    result->average_turnaround_time = ((float)runtime + waittime-total_wait_time) / n;
     result->total_run_time = runtime;
     return true; // return true
 }
@@ -175,12 +185,30 @@ bool shortest_job_first(dyn_array_t *ready_queue, ScheduleResult_t *result)
     if (ready_queue == NULL || result == NULL)
     {
         return false;
+    }                                                 // Check for invalid param
+    if (!dyn_array_sort(ready_queue, cmpfuncShortest)) // Sort array by arrival time
     } // Check for invalid param
     if (!dyn_array_sort(ready_queue, cmpfuncArrival))
     {
         return false;
-    }; // Sort array by arrival time
+    };
 
+    float waittime = 0;
+    unsigned long runtime = 0;
+    float total_wait_time;
+    int n = dyn_array_size(ready_queue);
+    for (int i = 0; i < n; i++) // loop through the ready queue
+    {
+        total_wait_time += ((ProcessControlBlock_t *)dyn_array_at(ready_queue, i))->arrival;
+        int x = n - i;                                                                            // set the wait time multiplier
+        runtime += ((ProcessControlBlock_t *)dyn_array_at(ready_queue, i))->remaining_burst_time; // add the burst time to the runtime
+        if (i > 0)
+        {
+            waittime += ((ProcessControlBlock_t *)dyn_array_at(ready_queue, i - 1))->remaining_burst_time * x; // add the wait time to the waittime
+        }
+    }
+
+    for (int i = 0; i < n; i++)
     float total_run_time = 0;               // set the total run time to 0
     float wait_time = 0;                    // set the wait time to 0
     size_t n = dyn_array_size(ready_queue); // set the number of processes to the size of the ready queue
@@ -194,6 +222,9 @@ bool shortest_job_first(dyn_array_t *ready_queue, ScheduleResult_t *result)
     // loop through every unit time
     for (size_t i = 0; i < (size_t)total_run_time; i++) // loop through the total run time
     {
+        ProcessControlBlock_t *current = (ProcessControlBlock_t *)dyn_array_at(ready_queue, i);
+
+        while (current->remaining_burst_time > 0) // run the process until the burst time is 0
         // Add every element to the run que that has an arrival time less or equal to current time
         if (dyn_array_size(ready_queue) > current_ready_queue_index)
         {
@@ -206,6 +237,7 @@ bool shortest_job_first(dyn_array_t *ready_queue, ScheduleResult_t *result)
         // Process any PCBs in the run queue
         if (dyn_array_size(run_que) != 0)
         {
+            virtual_cpu(current);
             // if (!dyn_array_sort(run_que, cmpfuncRemainingTime))
             // {
             //     return false; // sort the run queue by remaining burst time
@@ -241,6 +273,10 @@ bool shortest_job_first(dyn_array_t *ready_queue, ScheduleResult_t *result)
     result->total_run_time = (unsigned long)total_run_time;    // set the total run time
 
     dyn_array_destroy(ready_queue); // cleanup
+
+    result->average_waiting_time = (waittime-total_wait_time) / n; // set the result
+    result->average_turnaround_time = ((float)runtime + waittime-total_wait_time) / n;
+    result->total_run_time = runtime;
     dyn_array_destroy(run_que);
 
     return true; // return true
